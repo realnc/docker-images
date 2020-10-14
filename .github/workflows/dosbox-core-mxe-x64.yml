@@ -1,0 +1,22 @@
+name: DOSBox-core MXE x64
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'dosbox-core/mxe/Dockerfile'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          cd dosbox-core/mxe
+          docker build --build-arg DOCKER_MXE_TARGETS='x86_64-w64-mingw32.static' -t realnc/dosbox-core-build:mxe-x64 .
+          echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
+          docker push ${{ secrets.DOCKERHUB_USER }}/dosbox-core-build:mxe-x64
