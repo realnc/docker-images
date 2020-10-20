@@ -21,6 +21,7 @@ RUN \
         git \
         libasound2-dev \
         libglu1-mesa-dev \
+        libltdl-dev \
         libtool \
         mesa-common-dev \
         pkg-config \
