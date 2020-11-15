@@ -46,6 +46,7 @@ RUN \
         unzip \
         wget \
         xz-utils \
+        zip \
     ; \
     apt-get -y autoremove; \
     apt-get -y clean; \
