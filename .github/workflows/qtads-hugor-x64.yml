@@ -1,0 +1,22 @@
+name: QTads-Hugor Linux x86
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'qtads-hugor/linux-x86/Dockerfile'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          cd qtads-hugor/linux-x86
+          docker build -t realnc/qtads-hugor-build:linux-x86 .
+          echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
+          docker push realnc/qtads-hugor-build:linux-x86
