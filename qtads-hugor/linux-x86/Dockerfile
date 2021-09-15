@@ -175,7 +175,7 @@ RUN \
     wget -nv "https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/continuous/linuxdeploy-plugin-appimage-i386.AppImage"; \
     wget -nv "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-i386.AppImage"; \
     chmod +x linuxdeploy-*; \
-    ln -s linuxdeploy-x86_64.AppImage linuxdeploy;
+    ln -s linuxdeploy-i386.AppImage linuxdeploy;
 
 USER root
 CMD /usr/bin/linux32 /bin/bash
