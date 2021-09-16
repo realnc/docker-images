@@ -77,9 +77,9 @@ RUN \
     cd /tmp; \
     wget -nv "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -O- | tar xz; \
     cd openssl-${OPENSSL_VERSION}; \
-    ./config --prefix=/usr/local; \
-    make -j`nproc`; \
-    make install; \
+    linux32 ./config --prefix=/usr/local; \
+    linux32 make -j`nproc`; \
+    linux32 make install; \
     cd ..; \
     rm -rf openssl-${OPENSSL_VERSION}; \
     ldconfig;
