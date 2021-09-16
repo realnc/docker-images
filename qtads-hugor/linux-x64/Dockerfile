@@ -1,9 +1,11 @@
 FROM amd64/ubuntu:16.04
 
-ARG QT_SHORT_VERSION=5.15
-ARG QT_LONG_VERSION=5.15.2
 ARG FSYNTH_VERSION=2.2.3
+ARG OPENSSL_VERSION=1.1.1l
+ARG QT_LONG_VERSION=5.15.2
+ARG QT_SHORT_VERSION=5.15
 
+ENV APPIMAGE_EXTRACT_AND_RUN=1
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Deps.
@@ -38,7 +40,6 @@ RUN \
         libpulse-dev \
         libsdl2-dev \
         libsndfile1-dev \
-        libssl-dev \
         libtool \
         libx11-dev \
         libx11-xcb-dev \
@@ -70,6 +71,19 @@ RUN \
         cmake \
     ;
 
+# OpenSSL. Ubuntu 16.04's version is too old.
+RUN \
+    set -eux; \
+    cd /tmp; \
+    wget -nv "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -O- | tar xz; \
+    cd openssl-${OPENSSL_VERSION}; \
+    ./config --prefix=/usr/local; \
+    make -j`nproc`; \
+    make install; \
+    cd ..; \
+    rm -rf openssl-${OPENSSL_VERSION}; \
+    ldconfig;
+
 # qtbase.
 RUN \
     set -eux; \
@@ -92,6 +106,9 @@ RUN \
         -system-freetype \
         -qt-harfbuzz \
         -qt-pcre \
+        -ssl \
+        -openssl-runtime \
+        -no-cups \
         -xcb \
         -no-sql-db2 \
         -no-sql-ibase \
