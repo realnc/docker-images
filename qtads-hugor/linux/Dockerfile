@@ -1,20 +1,33 @@
-FROM amd64/ubuntu:16.04
+# syntax=docker/dockerfile:1.3-labs
+ARG FROM_ARCH
+FROM ${FROM_ARCH}/ubuntu:16.04
 
 ARG FSYNTH_VERSION=2.2.3
+ARG LINUXDEPLOY_ARCH
 ARG OPENSSL_VERSION=1.1.1l
 ARG QT_LONG_VERSION=5.15.2
 ARG QT_SHORT_VERSION=5.15
+ARG SHELL_WRAPPER
 
 ENV APPIMAGE_EXTRACT_AND_RUN=1
 ENV DEBIAN_FRONTEND=noninteractive
 
+RUN <<END_RUN
+    set -eux
+    echo '#! /bin/sh' > /bin/shell_wrapper
+    echo exec ${SHELL_WRAPPER} '"$@"' >> /bin/shell_wrapper
+    chmod +x /bin/shell_wrapper
+END_RUN
+
+SHELL ["/bin/shell_wrapper", "/bin/bash", "-c"]
+WORKDIR /tmp
+
 # Deps.
-RUN \
-    set -eux; \
-    cd /tmp; \
-    apt-get -y update; \
-    apt-get -y dist-upgrade; \
-    apt-get -y --no-install-recommends install apt-utils; \
+RUN <<END_RUN
+    set -eux
+    apt-get -y update
+    apt-get -y dist-upgrade
+    apt-get -y --no-install-recommends install apt-utils
     apt-get -y --no-install-recommends install \
         '^libxcb.*-dev' \
         autoconf \
@@ -56,40 +69,40 @@ RUN \
         unzip \
         wget \
         zlib1g-dev \
-    ; \
-    apt-get -y autoremove; \
-    apt-get -y clean; \
-    rm -rf /var/lib/apt/lists/*; \
-    rm -rf /tmp/*;
+    ;
+    apt-get -y autoremove
+    apt-get -y clean
+    rm -rf /var/lib/apt/lists/*
+    rm -rf /tmp/*
+END_RUN
 
 # Pip has more recent versions of some stuff.
-RUN \
-    set -eux; \
-    cd /tmp; \
-    python3 -m pip install --upgrade --no-cache-dir "pip<20"; \
+RUN <<END_RUN
+    set -eux
+    python3 -m pip install --upgrade --no-cache-dir "pip<20"
     python3 -m pip install --no-cache-dir \
         cmake \
     ;
+END_RUN
 
 # OpenSSL. Ubuntu 16.04's version is too old.
-RUN \
-    set -eux; \
-    cd /tmp; \
-    wget -nv "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -O- | tar xz; \
-    cd openssl-${OPENSSL_VERSION}; \
-    ./config --prefix=/usr/local; \
-    make -j`nproc`; \
-    make install; \
-    cd ..; \
-    rm -rf openssl-${OPENSSL_VERSION}; \
-    ldconfig;
+RUN <<END_RUN
+    set -eux
+    wget -nv "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -O- | tar xz
+    cd openssl-${OPENSSL_VERSION}
+    ./config --prefix=/usr/local
+    make -j`nproc`
+    make install
+    cd ..
+    rm -rf openssl-${OPENSSL_VERSION}
+    ldconfig
+END_RUN
 
 # qtbase.
-RUN \
-    set -eux; \
-    cd /tmp; \
-    wget -nv "https://download.qt.io/official_releases/qt/${QT_SHORT_VERSION}/${QT_LONG_VERSION}/submodules/qtbase-everywhere-src-${QT_LONG_VERSION}.tar.xz" -O- | tar xJ; \
-    cd qtbase-everywhere-src-${QT_LONG_VERSION}; \
+RUN <<END_RUN
+    set -eux
+    wget -nv "https://download.qt.io/official_releases/qt/${QT_SHORT_VERSION}/${QT_LONG_VERSION}/submodules/qtbase-everywhere-src-${QT_LONG_VERSION}.tar.xz" -O- | tar xJ
+    cd qtbase-everywhere-src-${QT_LONG_VERSION}
     ./configure \
         -prefix /usr/local \
         -opensource \
@@ -119,33 +132,33 @@ RUN \
         -no-sql-sqlite2 \
         -no-sql-sqlite \
         -no-sql-tds \
-    ; \
-    make -j`nproc`; \
-    make install; \
-    cd ..; \
-    rm -rf qtbase-everywhere-src-${QT_LONG_VERSION}; \
-    ldconfig;
+    ;
+    make -j`nproc`
+    make install
+    cd ..
+    rm -rf qtbase-everywhere-src-${QT_LONG_VERSION}
+    ldconfig
+END_RUN
 
 # qtimageformats.
-RUN \
-    set -eux; \
-    cd /tmp; \
-    wget -nv "https://download.qt.io/official_releases/qt/${QT_SHORT_VERSION}/${QT_LONG_VERSION}/submodules/qtimageformats-everywhere-src-${QT_LONG_VERSION}.tar.xz" -O- | tar xJ; \
-    cd qtimageformats-everywhere-src-${QT_LONG_VERSION}; \
-    qmake; \
-    make -j`nproc`; \
-    make install; \
-    cd ..; \
-    rm -rf qtimageformats-everywhere-src-${QT_LONG_VERSION}; \
-    ldconfig;
+RUN <<END_RUN
+    set -eux
+    wget -nv "https://download.qt.io/official_releases/qt/${QT_SHORT_VERSION}/${QT_LONG_VERSION}/submodules/qtimageformats-everywhere-src-${QT_LONG_VERSION}.tar.xz" -O- | tar xJ
+    cd qtimageformats-everywhere-src-${QT_LONG_VERSION}
+    qmake
+    make -j`nproc`
+    make install
+    cd ..
+    rm -rf qtimageformats-everywhere-src-${QT_LONG_VERSION}
+    ldconfig
+END_RUN
 
 # Fluidsynth.
-RUN \
-    set -eux; \
-    cd /tmp; \
-    wget -nv "https://github.com/FluidSynth/fluidsynth/archive/v${FSYNTH_VERSION}.tar.gz" -O- | tar xz; \
-    mkdir fluidsynth-${FSYNTH_VERSION}/build; \
-    cd fluidsynth-${FSYNTH_VERSION}/build; \
+RUN <<END_RUN
+    set -eux
+    wget -nv "https://github.com/FluidSynth/fluidsynth/archive/v${FSYNTH_VERSION}.tar.gz" -O- | tar xz
+    mkdir fluidsynth-${FSYNTH_VERSION}/build
+    cd fluidsynth-${FSYNTH_VERSION}/build
     cmake \
         -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_SHARED_LIBS=ON \
@@ -177,22 +190,25 @@ RUN \
         -Denable-pulseaudio=OFF \
         -Denable-threads=ON \
         .. \
-    ; \
-    make -j`nproc`; \
-    make install; \
-    cd ../..; \
-    rm -rf fluidsynth-${FSYNTH_VERSION}; \
-    ldconfig;
+    ;
+    make -j`nproc`
+    make install
+    cd ../..
+    rm -rf fluidsynth-${FSYNTH_VERSION}
+    ldconfig
+END_RUN
 
 # linuxdeploy
-RUN \
-    set -eux; \
-    cd /usr/local/bin; \
-    wget -nv "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"; \
-    wget -nv "https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/continuous/linuxdeploy-plugin-appimage-x86_64.AppImage"; \
-    wget -nv "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"; \
-    chmod +x linuxdeploy-*; \
-    ln -s linuxdeploy-x86_64.AppImage linuxdeploy;
+RUN <<END_RUN
+    set -eux
+    cd /usr/local/bin
+    wget -nv "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-${LINUXDEPLOY_ARCH}.AppImage"
+    wget -nv "https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/continuous/linuxdeploy-plugin-appimage-${LINUXDEPLOY_ARCH}.AppImage"
+    wget -nv "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-${LINUXDEPLOY_ARCH}.AppImage"
+    chmod +x linuxdeploy-*
+    ln -s linuxdeploy-${LINUXDEPLOY_ARCH}.AppImage linuxdeploy
+END_RUN
 
 USER root
-CMD /bin/bash
+ENTRYPOINT ["/bin/shell_wrapper"]
+CMD ["/bin/bash", "--login"]
