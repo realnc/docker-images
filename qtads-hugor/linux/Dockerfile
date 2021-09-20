@@ -140,6 +140,19 @@ RUN <<END_RUN
     ldconfig
 END_RUN
 
+# qtsvg
+RUN <<END_RUN
+    set -eux
+    wget -nv "https://download.qt.io/official_releases/qt/${QT_SHORT_VERSION}/${QT_LONG_VERSION}/submodules/qtsvg-everywhere-src-${QT_LONG_VERSION}.tar.xz" -O- | tar xJ
+    cd qtsvg-everywhere-src-${QT_LONG_VERSION}
+    qmake
+    make -j`nproc`
+    make install
+    cd ..
+    rm -rf qtsvg-everywhere-src-${QT_LONG_VERSION}
+    ldconfig
+END_RUN
+
 # qtimageformats.
 RUN <<END_RUN
     set -eux
