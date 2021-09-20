@@ -1,11 +1,11 @@
-name: QTads-Hugor Linux x64
+name: QTads Linux x64
 
 on:
   push:
     branches:
       - master
     paths:
-      - 'qtads-hugor/linux/Dockerfile'
+      - 'qtads/linux/Dockerfile'
 
 jobs:
   build:
@@ -18,13 +18,13 @@ jobs:
 
       - name: Build
         run: |
-          cd qtads-hugor/linux
+          cd qtads/linux
           docker build \
             --progress plain \
-            -t realnc/qtads-hugor-build:linux-x64 \
+            -t realnc/qtads-build:linux-x64 \
             --build-arg FROM_ARCH=amd64 \
             --build-arg LINUXDEPLOY_ARCH=x86_64 \
             --build-arg SHELL_WRAPPER=/usr/bin/linux64 \
             .
           echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
-          docker push realnc/qtads-hugor-build:linux-x64
+          docker push realnc/qtads-build:linux-x64
