@@ -1,0 +1,29 @@
+name: Hugor Linux x86
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'hugor/linux/Dockerfile'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          cd hugor/linux
+          docker build \
+            --progress plain \
+            -t realnc/hugor-build:linux-x86 \
+            --build-arg FROM_ARCH=linux-x86 \
+            --build-arg APPIMAGE_ARCH=i686 \
+            .
+          echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
+          docker push realnc/hugor-build:linux-x86
