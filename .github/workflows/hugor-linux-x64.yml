@@ -22,6 +22,7 @@ jobs:
           docker build \
             --progress plain \
             -t realnc/hugor-build:linux-x64 \
+            --platform linux/amd64 \
             --build-arg FROM_ARCH=linux-x64 \
             --build-arg APPIMAGE_ARCH=x86_64 \
             .

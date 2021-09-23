@@ -17,6 +17,10 @@ jobs:
       - name: Build
         run: |
           cd dosbox-core/mxe
-          docker build --build-arg DOCKER_MXE_TARGETS='i686-w64-mingw32.static' -t realnc/dosbox-core-build:mxe-x86 .
+          docker build \
+            -t realnc/dosbox-core-build:mxe-x86 \
+            --platform linux/amd64 \
+            --build-arg DOCKER_MXE_TARGETS='i686-w64-mingw32.static' \
+            .
           echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
           docker push ${{ secrets.DOCKERHUB_USER }}/dosbox-core-build:mxe-x86

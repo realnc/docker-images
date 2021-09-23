@@ -22,6 +22,7 @@ jobs:
           docker build \
             --progress plain \
             -t realnc/qtads-build:linux-x64 \
+            --platform linux/amd64 \
             --build-arg FROM_ARCH=amd64 \
             --build-arg LINUXDEPLOY_ARCH=x86_64 \
             --build-arg SHELL_WRAPPER=/usr/bin/linux64 \
