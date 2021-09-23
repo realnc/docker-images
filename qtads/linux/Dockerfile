@@ -26,13 +26,19 @@ WORKDIR /tmp
 RUN <<END_RUN
     set -eux
     apt-get -y update
+    apt-get -y --no-install-recommends install \
+        apt-utils \
+        software-properties-common\
+    ;
+    add-apt-repository -y ppa:git-core/ppa
+    apt-get -y update
     apt-get -y dist-upgrade
-    apt-get -y --no-install-recommends install apt-utils
     apt-get -y --no-install-recommends install \
         '^libxcb.*-dev' \
         autoconf \
         automake \
         build-essential \
+        git \
         libasound2-dev \
         libatspi2.0-dev \
         libdbus-1-dev \
