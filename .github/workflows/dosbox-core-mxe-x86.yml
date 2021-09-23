@@ -1,6 +1,7 @@
 name: DOSBox-core MXE x86
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

@@ -1,6 +1,7 @@
 name: QTads Linux x86
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
