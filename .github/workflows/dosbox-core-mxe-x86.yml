@@ -11,6 +11,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
 
     steps:
       - uses: actions/checkout@v2
@@ -19,6 +21,7 @@ jobs:
         run: |
           cd dosbox-core/mxe
           docker build \
+            --progress plain \
             -t realnc/dosbox-core-build:mxe-x86 \
             --platform linux/amd64 \
             --build-arg DOCKER_MXE_TARGETS='i686-w64-mingw32.static' \

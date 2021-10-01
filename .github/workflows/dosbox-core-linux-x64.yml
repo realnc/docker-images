@@ -11,6 +11,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
 
     steps:
       - uses: actions/checkout@v2
@@ -19,6 +21,7 @@ jobs:
         run: |
           cd dosbox-core/linux-x64
           docker build \
+            --progress plain \
             -t realnc/dosbox-core-build:linux-x64 \
             --platform linux/amd64 \
             .
