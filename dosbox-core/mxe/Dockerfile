@@ -72,7 +72,7 @@ RUN <<END_RUN
     echo "JOBS := `nproc`" >> settings.mk
     echo "MXE_TMP := /tmp/mxe" >> settings.mk
     echo "MXE_TARGETS := ${DOCKER_MXE_TARGETS}" >> settings.mk
-    echo "override MXE_PLUGIN_DIRS += plugins/gcc10" >> settings.mk
+    echo "override MXE_PLUGIN_DIRS += plugins/gcc11" >> settings.mk
     echo "MXE_USE_CCACHE=" >> settings.mk
     echo "gcc_CONFIGURE_OPTS := --enable-languages=c,c++" >> settings.mk
     make \
