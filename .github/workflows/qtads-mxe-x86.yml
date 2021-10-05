@@ -1,0 +1,33 @@
+name: QTads MXE x86
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - 'qtads/mxe/Dockerfile'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      IMAGE_NAME: realnc/qtads-build:mxe-x86
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          cd qtads/mxe
+          docker build \
+            --progress plain \
+            -t ${IMAGE_NAME} \
+            --platform linux/amd64 \
+            --cache-from ${IMAGE_NAME} \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
+            --build-arg DOCKER_MXE_TARGETS='i686-w64-mingw32.static' \
+            .
+          echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
+          docker push ${IMAGE_NAME}
