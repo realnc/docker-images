@@ -69,7 +69,7 @@ RUN <<END_RUN
     git checkout ${MXE_COMMIT}
     make check-requirements
     echo "" >> settings.mk
-    echo "JOBS := `nproc`" >> settings.mk
+    echo "JOBS := \\$(shell nproc)" >> settings.mk
     echo "MXE_TMP := /tmp/mxe" >> settings.mk
     echo "MXE_TARGETS := ${DOCKER_MXE_TARGETS}" >> settings.mk
     echo "override MXE_PLUGIN_DIRS += plugins/gcc11" >> settings.mk
