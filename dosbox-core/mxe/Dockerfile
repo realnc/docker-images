@@ -10,6 +10,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN <<END_RUN
     set -eux
     apt-get -y update
+    apt-get -y --no-install-recommends install apt-utils
     apt-get -y dist-upgrade
     apt-get -y --no-install-recommends install \
         autoconf \
