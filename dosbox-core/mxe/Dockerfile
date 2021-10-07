@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.3-labs
 FROM amd64/ubuntu:20.04
 
-ARG DOCKER_MXE_TARGETS
+ARG DOCKER_MXE_TARGET
 ARG MXE_COMMIT=8838ac3938cd8e47424a4cb5d3676d1ae9a4d670
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -9,6 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install deps.
 RUN <<END_RUN
     set -eux
+
     apt-get -y update
     apt-get -y --no-install-recommends install apt-utils
     apt-get -y dist-upgrade
@@ -61,6 +62,7 @@ END_RUN
 # Install MXE.
 RUN <<END_RUN
     set -eux
+
     cd /opt
     mkdir mxe
     cd mxe
@@ -69,20 +71,31 @@ RUN <<END_RUN
     git fetch --depth=1 origin ${MXE_COMMIT}
     git checkout ${MXE_COMMIT}
     make check-requirements
-    echo "" >> settings.mk
-    echo "JOBS := \\$(shell nproc)" >> settings.mk
-    echo "MXE_TMP := /tmp/mxe" >> settings.mk
-    echo "MXE_TARGETS := ${DOCKER_MXE_TARGETS}" >> settings.mk
-    echo "override MXE_PLUGIN_DIRS += plugins/gcc11" >> settings.mk
-    echo "MXE_USE_CCACHE=" >> settings.mk
-    echo "gcc_CONFIGURE_OPTS := --enable-languages=c,c++" >> settings.mk
+
+    for settings_line in \
+        "" \
+        'JOBS := $(shell nproc)' \
+        "MXE_TMP := /tmp/mxe" \
+        "MXE_TARGETS := ${DOCKER_MXE_TARGET}" \
+        "MXE_USE_CCACHE=" \
+        "" \
+        "override MXE_PLUGIN_DIRS += plugins/gcc11" \
+        "gcc_CONFIGURE_OPTS := --enable-languages=c,c++" \
+    ; do echo "$settings_line" >> settings.mk; done
+
     make \
         cc \
         cmake \
         dlfcn-win32 \
         glib \
         libsndfile \
+        mpg123 \
+        ogg \
+        opus \
+        opusfile \
+        sdl \
         sdl_net \
+        vorbis \
     ;
     make clean-junk
     rm -rf pkg/*
