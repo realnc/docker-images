@@ -5,7 +5,7 @@ FROM realnc/qtads-build:${FROM_ARCH}
 ARG ADLMIDI_VERSION=1.5.0.1-1
 ARG APPIMAGE_ARCH
 ARG NASM_VERSION=2.15.05
-ARG OPENMPT_VERSION=0.4.23
+ARG OPENMPT_VERSION=0.4.24
 ARG PATCHELF_VERSION=0.13
 ARG VLC_VERSION=3.0.16
 
@@ -35,7 +35,7 @@ RUN <<END_RUN
     make -j`nproc`
     make install
     cd ..
-    rm -rf nasm-${NASM_VERSION}
+    rm -rf *
 END_RUN
 
 # LibVLC
@@ -155,7 +155,7 @@ RUN <<END_RUN
     touch share/vlc.appdata.xml
     make install-strip
     cd ..
-    rm -rf vlc-${VLC_VERSION}
+    rm -rf *
     ldconfig
 END_RUN
 
@@ -189,7 +189,7 @@ RUN <<END_RUN
     make -j`nproc`
     make install-strip
     cd ..
-    rm -rf libopenmpt-${OPENMPT_VERSION}+release.autotools
+    rm -rf *
     ldconfig
 END_RUN
 
@@ -223,7 +223,7 @@ RUN <<END_RUN
     ;
     cmake --build . --target install -j `nproc` -v
     cd ../..
-    rm -rf libADLMIDI-${ADLMIDI_VERSION}
+    rm -rf *
     ldconfig
 END_RUN
 
@@ -236,7 +236,7 @@ RUN <<END_RUN
     make -j`nproc`
     make install-strip
     cd ..
-    rm -rf patchelf-0.13.*
+    rm -rf *
 END_RUN
 
 # appimagetool, linuxdeployqt
@@ -250,5 +250,5 @@ RUN <<END_RUN
     make -j`nproc`
     make install
     cd ..
-    rm -rf linuxdeployqt-continuous
+    rm -rf *
 END_RUN
