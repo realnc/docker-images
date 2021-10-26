@@ -5,8 +5,6 @@ FROM ${FROM_ARCH}/ubuntu:16.04
 ARG FSYNTH_VERSION=2.2.3
 ARG LINUXDEPLOY_ARCH
 ARG OPENSSL_VERSION=1.1.1l
-ARG QT_LONG_VERSION=5.15.2
-ARG QT_SHORT_VERSION=5.15
 ARG SHELL_WRAPPER
 
 ENV APPIMAGE_EXTRACT_AND_RUN=1
@@ -100,15 +98,15 @@ RUN <<END_RUN
     make -j`nproc`
     make install
     cd ..
-    rm -rf openssl-${OPENSSL_VERSION}
+    rm -rf *
     ldconfig
 END_RUN
 
 # qtbase.
 RUN <<END_RUN
     set -eux
-    wget -nv "https://download.qt.io/official_releases/qt/${QT_SHORT_VERSION}/${QT_LONG_VERSION}/submodules/qtbase-everywhere-src-${QT_LONG_VERSION}.tar.xz" -O- | tar xJ
-    cd qtbase-everywhere-src-${QT_LONG_VERSION}
+    git clone --depth=1 --branch "kde/5.15" "https://invent.kde.org/qt/qt/qtbase.git"
+    cd qtbase
     ./configure \
         -prefix /usr/local \
         -opensource \
@@ -142,33 +140,33 @@ RUN <<END_RUN
     make -j`nproc`
     make install
     cd ..
-    rm -rf qtbase-everywhere-src-${QT_LONG_VERSION}
+    rm -rf *
     ldconfig
 END_RUN
 
 # qtsvg
 RUN <<END_RUN
     set -eux
-    wget -nv "https://download.qt.io/official_releases/qt/${QT_SHORT_VERSION}/${QT_LONG_VERSION}/submodules/qtsvg-everywhere-src-${QT_LONG_VERSION}.tar.xz" -O- | tar xJ
-    cd qtsvg-everywhere-src-${QT_LONG_VERSION}
+    git clone --depth=1 --branch "kde/5.15" "https://invent.kde.org/qt/qt/qtsvg.git"
+    cd qtsvg
     qmake
     make -j`nproc`
     make install
     cd ..
-    rm -rf qtsvg-everywhere-src-${QT_LONG_VERSION}
+    rm -rf *
     ldconfig
 END_RUN
 
 # qtimageformats.
 RUN <<END_RUN
     set -eux
-    wget -nv "https://download.qt.io/official_releases/qt/${QT_SHORT_VERSION}/${QT_LONG_VERSION}/submodules/qtimageformats-everywhere-src-${QT_LONG_VERSION}.tar.xz" -O- | tar xJ
-    cd qtimageformats-everywhere-src-${QT_LONG_VERSION}
+    git clone --depth=1 --branch "kde/5.15" "https://invent.kde.org/qt/qt/qtimageformats.git"
+    cd qtimageformats
     qmake
     make -j`nproc`
     make install
     cd ..
-    rm -rf qtimageformats-everywhere-src-${QT_LONG_VERSION}
+    rm -rf *
     ldconfig
 END_RUN
 
@@ -213,7 +211,7 @@ RUN <<END_RUN
     make -j`nproc`
     make install
     cd ../..
-    rm -rf fluidsynth-${FSYNTH_VERSION}
+    rm -rf *
     ldconfig
 END_RUN
 
