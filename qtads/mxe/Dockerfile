@@ -2,11 +2,11 @@
 FROM amd64/ubuntu:20.04
 
 ARG DOCKER_MXE_TARGETS
-ARG FSYNTH_CHECKSUM=b31807cb0f88e97f3096e2b378c9815a6acfdc20b0b14f97936d905b536965c4
-ARG FSYNTH_VERSION=2.2.3
+ARG FSYNTH_CHECKSUM=9037e703617f91c4c36039a5059e0f624164799d856af715bcd8a23c07ba03b8
+ARG FSYNTH_VERSION=2.2.5
 ARG LIBSNDFILE_CHECKSUM=a8cfb1c09ea6e90eff4ca87322d4168cdbe5035cb48717b40bf77e751cc02163
 ARG LIBSNDFILE_VERSION=1.0.31
-ARG MXE_COMMIT=8838ac3938cd8e47424a4cb5d3676d1ae9a4d670
+ARG MXE_COMMIT=6fb5fffc6c491be76c7141d94e9f86a97ecbf93c
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -141,6 +141,8 @@ RUN <<END_RUN
     sed -i'' '/--with-default-audio=/d' src/mpg123.mk
     sed -i'' '/--with-audio=/d' src/mpg123.mk
     sed -i'' 's/$(MXE_CONFIGURE_OPTS) /$(MXE_CONFIGURE_OPTS) --with-default-audio=dummy --with-audio=dummy /g' src/mpg123.mk
+
+    rm src/fluidsynth-*.patch
     
     sed -i'' '/PSQL_LIBS=/d' src/qtbase.mk
     sed -i'' '/SYBASE_LIBS=/d' src/qtbase.mk
@@ -152,8 +154,6 @@ RUN <<END_RUN
     sed -i'' '/-dbus-linked /d' src/qtbase.mk
     sed -i'' 's/std=c++0x/std=c++17/g' src/qtbase.mk
 END_RUN
-
-COPY fluidsynth-1-fixes.patch /opt/mxe/src/
 
 # Build MXE packages
 RUN <<END_RUN
