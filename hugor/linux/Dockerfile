@@ -1,13 +1,14 @@
-# syntax=docker/dockerfile:1.3-labs
+# syntax=docker/dockerfile:1.4
 ARG FROM_ARCH
 FROM realnc/qtads-build:${FROM_ARCH}
 
 ARG ADLMIDI_VERSION=1.5.0.1-1
 ARG APPIMAGE_ARCH
 ARG NASM_VERSION=2.15.05
-ARG OPENMPT_VERSION=0.4.24
-ARG PATCHELF_VERSION=0.13
-ARG VLC_VERSION=3.0.16
+ARG OPENMPT_VERSION=0.4.29
+# Don't use patchelf >=0.14 as it requires std::optional.
+ARG PATCHELF_VERSION=0.13.1
+ARG VLC_VERSION=3.0.17.3
 
 WORKDIR /tmp
 
@@ -231,7 +232,7 @@ END_RUN
 RUN <<END_RUN
     set -eux
     wget -nv "https://github.com/NixOS/patchelf/releases/download/${PATCHELF_VERSION}/patchelf-${PATCHELF_VERSION}.tar.bz2" -O- | tar xj
-    cd patchelf-0.13.*
+    cd patchelf-*
     ./configure --prefix=/usr/local
     make -j`nproc`
     make install-strip
