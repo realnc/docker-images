@@ -1,11 +1,11 @@
-# syntax=docker/dockerfile:1.3-labs
+# syntax=docker/dockerfile:1.4
 ARG FROM_ARCH
 FROM realnc/qtads-build:${FROM_ARCH}
 
 ARG ADLMIDI_VERSION=1.5.0.1-1
 ARG MXE_TARGET
 ARG OPENMPT_VERSION=0.4.29
-ARG VLC_VERSION=3.0.16
+ARG VLC_VERSION=3.0.17.3
 
 ENV CMAKE_GENERATOR=Ninja
 
@@ -14,7 +14,7 @@ WORKDIR /tmp
 RUN <<END_RUN
     set -eux
 
-    wget -nv "https://get.videolan.org/vlc/3.0.16/win32/vlc-${VLC_VERSION}-win32.7z"
+    wget -nv "https://get.videolan.org/vlc/${VLC_VERSION}/win32/vlc-${VLC_VERSION}-win32.7z"
     7z x vlc-*
     cd vlc-${VLC_VERSION}
     sed -i'' 's/^prefix=.*/prefix=\/opt\/mxe\/usr\/${MXE_TARGET}/g' sdk/lib/pkgconfig/*.pc
