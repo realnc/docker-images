@@ -1,17 +1,17 @@
-# syntax=docker/dockerfile:1.3-labs
+# syntax=docker/dockerfile:1.4
 ARG FROM_ARCH
 FROM ${FROM_ARCH}/ubuntu:16.04
 
-ARG FSYNTH_VERSION=2.2.5
+ARG FSYNTH_VERSION=2.2.7
 ARG LINUXDEPLOY_ARCH
-ARG OPENSSL_VERSION=1.1.1m
+ARG OPENSSL_VERSION=1.1.1o
 ARG SHELL_WRAPPER
 
 ENV APPIMAGE_EXTRACT_AND_RUN=1
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN <<END_RUN
-    set -eux
+    set -ex
     echo '#! /bin/sh' > /bin/shell_wrapper
     echo exec ${SHELL_WRAPPER} '"$@"' >> /bin/shell_wrapper
     chmod +x /bin/shell_wrapper
@@ -22,7 +22,7 @@ WORKDIR /tmp
 
 # Deps.
 RUN <<END_RUN
-    set -eux
+    set -ex
     apt-get -y update
     apt-get -y --no-install-recommends install \
         apt-utils \
@@ -82,7 +82,7 @@ END_RUN
 
 # Pip has more recent versions of some stuff.
 RUN <<END_RUN
-    set -eux
+    set -ex
     python3 -m pip install --upgrade --no-cache-dir "pip<20"
     python3 -m pip install --no-cache-dir \
         cmake \
@@ -91,7 +91,7 @@ END_RUN
 
 # OpenSSL. Ubuntu 16.04's version is too old.
 RUN <<END_RUN
-    set -eux
+    set -ex
     wget -nv "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -O- | tar xz
     cd openssl-${OPENSSL_VERSION}
     ./config --prefix=/usr/local
@@ -104,7 +104,7 @@ END_RUN
 
 # qtbase.
 RUN <<END_RUN
-    set -eux
+    set -ex
     git clone --depth=1 --branch "kde/5.15" "https://invent.kde.org/qt/qt/qtbase.git"
     cd qtbase
     ./configure \
@@ -146,7 +146,7 @@ END_RUN
 
 # qtsvg
 RUN <<END_RUN
-    set -eux
+    set -ex
     git clone --depth=1 --branch "kde/5.15" "https://invent.kde.org/qt/qt/qtsvg.git"
     cd qtsvg
     qmake
@@ -159,7 +159,7 @@ END_RUN
 
 # qtimageformats.
 RUN <<END_RUN
-    set -eux
+    set -ex
     git clone --depth=1 --branch "kde/5.15" "https://invent.kde.org/qt/qt/qtimageformats.git"
     cd qtimageformats
     qmake
@@ -172,7 +172,7 @@ END_RUN
 
 # Fluidsynth.
 RUN <<END_RUN
-    set -eux
+    set -ex
     wget -nv "https://github.com/FluidSynth/fluidsynth/archive/v${FSYNTH_VERSION}.tar.gz" -O- | tar xz
     mkdir fluidsynth-${FSYNTH_VERSION}/build
     cd fluidsynth-${FSYNTH_VERSION}/build
@@ -217,7 +217,7 @@ END_RUN
 
 # linuxdeploy
 RUN <<END_RUN
-    set -eux
+    set -ex
     cd /usr/local/bin
     wget -nv "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-${LINUXDEPLOY_ARCH}.AppImage"
     wget -nv "https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/continuous/linuxdeploy-plugin-appimage-${LINUXDEPLOY_ARCH}.AppImage"
