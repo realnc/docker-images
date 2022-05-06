@@ -1,19 +1,19 @@
-# syntax=docker/dockerfile:1.3-labs
+# syntax=docker/dockerfile:1.4
 FROM amd64/ubuntu:20.04
 
 ARG DOCKER_MXE_TARGETS
-ARG FSYNTH_CHECKSUM=9037e703617f91c4c36039a5059e0f624164799d856af715bcd8a23c07ba03b8
-ARG FSYNTH_VERSION=2.2.5
-ARG LIBSNDFILE_CHECKSUM=a8cfb1c09ea6e90eff4ca87322d4168cdbe5035cb48717b40bf77e751cc02163
-ARG LIBSNDFILE_VERSION=1.0.31
-ARG MXE_COMMIT=6fb5fffc6c491be76c7141d94e9f86a97ecbf93c
+ARG FSYNTH_CHECKSUM=460d86d8d687f567dc4780890b72538c7ff6b2082080ef2f9359d41670a309cf
+ARG FSYNTH_VERSION=2.2.7
+ARG LIBSNDFILE_CHECKSUM=0f98e101c0f7c850a71225fb5feaf33b106227b3d331333ddc9bacee190bcf41
+ARG LIBSNDFILE_VERSION=1.1.0
+ARG MXE_COMMIT=9ac466ee81fa6c83e6719d6171b217fb7109275c
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install deps.
 RUN <<END_RUN
-    set -eux
-    
+    set -ex
+
     apt-get -y update
     apt-get -y --no-install-recommends install apt-utils
     apt-get -y dist-upgrade
@@ -49,9 +49,11 @@ RUN <<END_RUN
         perl \
         pkg-config \
         python \
+        python3-mako \
         python3-pip \
         ruby \
         sed \
+        texinfo \
         unzip \
         wget \
         xz-utils \
@@ -65,7 +67,7 @@ END_RUN
 
 # Install MXE.
 RUN <<END_RUN
-    set -eux
+    set -ex
 
     git config --global advice.detachedHead false
     cd /opt
@@ -84,12 +86,11 @@ RUN <<END_RUN
         "MXE_TARGETS := ${DOCKER_MXE_TARGETS}" \
         "MXE_USE_CCACHE=" \
         "" \
-        "override MXE_PLUGIN_DIRS += plugins/gcc11" \
         "gcc_CONFIGURE_OPTS := --enable-languages=c,c++" \
         "" \
         "override libsndfile_VERSION := ${LIBSNDFILE_VERSION}" \
         "override libsndfile_CHECKSUM := ${LIBSNDFILE_CHECKSUM}" \
-        "override libsndfile_GH_CONF := libsndfile/libsndfile/releases,,,,,.tar.bz2" \
+        "override libsndfile_GH_CONF := libsndfile/libsndfile/releases,,,,,.tar.xz" \
         "override libsndfile_DEPS := cc" \
         "" \
         "override mpg123_DEPS := cc" \
@@ -135,15 +136,16 @@ RUN <<END_RUN
         "    -no-sql-sqlite \\" \
         "    -no-sql-tds" \
     ; do echo "$settings_line" >> settings.mk; done
-    
+
     sed -i'' 's/--enable-external-libs /--disable-external-libs --disable-full-suite /g' src/libsndfile.mk
-    
+
     sed -i'' '/--with-default-audio=/d' src/mpg123.mk
     sed -i'' '/--with-audio=/d' src/mpg123.mk
     sed -i'' 's/$(MXE_CONFIGURE_OPTS) /$(MXE_CONFIGURE_OPTS) --with-default-audio=dummy --with-audio=dummy /g' src/mpg123.mk
 
     rm src/fluidsynth-*.patch
-    
+    sed -i'' '/--libs fluidsynth/ s/$/ -luuid/' src/fluidsynth.mk
+
     sed -i'' '/PSQL_LIBS=/d' src/qtbase.mk
     sed -i'' '/SYBASE_LIBS=/d' src/qtbase.mk
     sed -i'' '/-opengl dynamic /d' src/qtbase.mk
@@ -152,12 +154,13 @@ RUN <<END_RUN
     sed -i'' '/-plugin-sql-/d' src/qtbase.mk
     sed -i'' '/-system-sqlite /d' src/qtbase.mk
     sed -i'' '/-dbus-linked /d' src/qtbase.mk
+    sed -i'' 's:./configure :./configure -c++std c++17 :g' src/qtbase.mk
     sed -i'' 's/std=c++0x/std=c++17/g' src/qtbase.mk
 END_RUN
 
 # Build MXE packages
 RUN <<END_RUN
-    set -eux
+    set -ex
 
     cd /opt/mxe
     make \
@@ -170,7 +173,7 @@ RUN <<END_RUN
         qtsvg \
         qtimageformats \
     ;
-    
+
     make clean-junk
     rm -rf pkg
     rm -rf /tmp/*
