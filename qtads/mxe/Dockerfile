@@ -4,8 +4,8 @@ FROM amd64/ubuntu:20.04
 ARG DOCKER_MXE_TARGETS
 ARG FSYNTH_CHECKSUM=460d86d8d687f567dc4780890b72538c7ff6b2082080ef2f9359d41670a309cf
 ARG FSYNTH_VERSION=2.2.7
-ARG LIBSNDFILE_CHECKSUM=0f98e101c0f7c850a71225fb5feaf33b106227b3d331333ddc9bacee190bcf41
-ARG LIBSNDFILE_VERSION=1.1.0
+ARG LIBSNDFILE_CHECKSUM=a8cfb1c09ea6e90eff4ca87322d4168cdbe5035cb48717b40bf77e751cc02163
+ARG LIBSNDFILE_VERSION=1.0.31
 ARG MXE_COMMIT=9ac466ee81fa6c83e6719d6171b217fb7109275c
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -90,7 +90,7 @@ RUN <<END_RUN
         "" \
         "override libsndfile_VERSION := ${LIBSNDFILE_VERSION}" \
         "override libsndfile_CHECKSUM := ${LIBSNDFILE_CHECKSUM}" \
-        "override libsndfile_GH_CONF := libsndfile/libsndfile/releases,,,,,.tar.xz" \
+        "override libsndfile_GH_CONF := libsndfile/libsndfile/releases,,,,,.tar.bz2" \
         "override libsndfile_DEPS := cc" \
         "" \
         "override mpg123_DEPS := cc" \
