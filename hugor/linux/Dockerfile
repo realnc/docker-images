@@ -5,7 +5,7 @@ FROM realnc/qtads-build:${FROM_ARCH}
 ARG ADLMIDI_VERSION=1.5.0.1-1
 ARG APPIMAGE_ARCH
 ARG NASM_VERSION=2.15.05
-ARG OPENMPT_VERSION=0.4.29
+ARG OPENMPT_VERSION=0.4.30
 # Don't use patchelf >=0.14 as it requires std::optional.
 ARG PATCHELF_VERSION=0.13.1
 ARG VLC_VERSION=3.0.17.3
@@ -14,7 +14,8 @@ WORKDIR /tmp
 
 # Deps.
 RUN <<END_RUN
-    set -eux
+    set -ex
+
     apt-get -y update
     apt-get -y dist-upgrade
     apt-get -y --no-install-recommends install \
@@ -30,6 +31,7 @@ END_RUN
 # NASM
 RUN <<END_RUN
     set -eux
+
     wget -nv "https://www.nasm.us/pub/nasm/releasebuilds/${NASM_VERSION}/nasm-${NASM_VERSION}.tar.xz" -O- | tar xJ
     cd nasm-${NASM_VERSION}
     ./configure --prefix=/usr/local
@@ -41,7 +43,8 @@ END_RUN
 
 # LibVLC
 RUN <<END_RUN
-    set -eux
+    set -ex
+
     wget -nv "http://get.videolan.org/vlc/${VLC_VERSION}/vlc-${VLC_VERSION}.tar.xz" -O- | tar xJ
     mkdir vlc-${VLC_VERSION}/contrib/native
     cd vlc-${VLC_VERSION}/contrib/native
@@ -162,7 +165,8 @@ END_RUN
 
 # libopenmpt
 RUN <<END_RUN
-    set -eux
+    set -ex
+
     wget -nv "https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-${OPENMPT_VERSION}+release.autotools.tar.gz" -O- | tar xz
     cd libopenmpt-${OPENMPT_VERSION}+release.autotools
     ./configure \
@@ -196,7 +200,8 @@ END_RUN
 
 # libADLMIDI
 RUN <<END_RUN
-    set -eux
+    set -ex
+
     wget -nv "https://github.com/Wohlstand/libADLMIDI/archive/refs/tags/v${ADLMIDI_VERSION}.tar.gz" -O- | tar xz
     mkdir libADLMIDI-${ADLMIDI_VERSION}/build
     cd libADLMIDI-${ADLMIDI_VERSION}/build
@@ -230,7 +235,8 @@ END_RUN
 
 # patchelf
 RUN <<END_RUN
-    set -eux
+    set -ex
+
     wget -nv "https://github.com/NixOS/patchelf/releases/download/${PATCHELF_VERSION}/patchelf-${PATCHELF_VERSION}.tar.bz2" -O- | tar xj
     cd patchelf-*
     ./configure --prefix=/usr/local
@@ -242,7 +248,8 @@ END_RUN
 
 # appimagetool, linuxdeployqt
 RUN <<END_RUN
-    set -eux
+    set -ex
+
     wget -nv "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-${APPIMAGE_ARCH}.AppImage" -O /usr/local/bin/appimagetool
     chmod +x /usr/local/bin/appimagetool
     wget -nv "https://github.com/probonopd/linuxdeployqt/archive/refs/tags/continuous.tar.gz" -O- | tar xz
