@@ -4,7 +4,7 @@ FROM realnc/qtads-build:${FROM_ARCH}
 
 ARG ADLMIDI_VERSION=1.5.0.1-1
 ARG MXE_TARGET
-ARG OPENMPT_VERSION=0.4.29
+ARG OPENMPT_VERSION=0.4.30
 ARG VLC_VERSION=3.0.17.3
 
 ENV CMAKE_GENERATOR=Ninja
@@ -12,7 +12,7 @@ ENV CMAKE_GENERATOR=Ninja
 WORKDIR /tmp
 
 RUN <<END_RUN
-    set -eux
+    set -ex
 
     wget -nv "https://get.videolan.org/vlc/${VLC_VERSION}/win32/vlc-${VLC_VERSION}-win32.7z"
     7z x vlc-*
@@ -403,7 +403,7 @@ END_RUN
 
 # libopenmpt
 RUN <<END_RUN
-    set -eux
+    set -ex
 
     wget -nv "https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-${OPENMPT_VERSION}+release.autotools.tar.gz" -O- | tar xz
     cd libopenmpt-${OPENMPT_VERSION}+release.autotools
@@ -439,7 +439,7 @@ END_RUN
 
 # libADLMIDI
 RUN <<END_RUN
-    set -eux
+    set -ex
 
     wget -nv "https://github.com/Wohlstand/libADLMIDI/archive/refs/tags/v${ADLMIDI_VERSION}.tar.gz" -O- | tar xz
     mkdir libADLMIDI-${ADLMIDI_VERSION}/build
