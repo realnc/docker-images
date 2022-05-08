@@ -17,7 +17,7 @@ RUN <<END_RUN
     wget -nv "https://get.videolan.org/vlc/${VLC_VERSION}/win32/vlc-${VLC_VERSION}-win32.7z"
     7z x vlc-*
     cd vlc-${VLC_VERSION}
-    sed -i'' 's/^prefix=.*/prefix=\/opt\/mxe\/usr\/${MXE_TARGET}/g' sdk/lib/pkgconfig/*.pc
+    sed -i'' "s/^prefix=.*/prefix=\/opt\/mxe\/usr\/${MXE_TARGET}/g" sdk/lib/pkgconfig/*.pc
     cp -a sdk/* /opt/mxe/usr/${MXE_TARGET}/
     mkdir -p /opt/vlc/plugins
     mv libvlc.dll libvlccore.dll /opt/vlc/
