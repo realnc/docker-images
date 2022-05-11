@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_BUILDKIT: 1
+      IMAGE_NAME: realnc/dosbox-core-build:linux-x86
 
     steps:
       - uses: actions/checkout@v2
@@ -23,10 +24,12 @@ jobs:
           cd dosbox-core/linux
           docker build \
             --progress plain \
-            -t realnc/dosbox-core-build:linux-x86 \
+            -t ${IMAGE_NAME} \
             --platform linux/amd64 \
+            --cache-from ${IMAGE_NAME} \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
             --build-arg FROM_ARCH=i386 \
             --build-arg SHELL_WRAPPER=/usr/bin/linux32 \
             .
           echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
-          docker push realnc/dosbox-core-build:linux-x86
+          docker push ${IMAGE_NAME}

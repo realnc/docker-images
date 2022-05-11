@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_BUILDKIT: 1
+      IMAGE_NAME: realnc/hugor-build:linux-x64
 
     steps:
       - uses: actions/checkout@v2
@@ -23,10 +24,12 @@ jobs:
           cd hugor/linux
           docker build \
             --progress plain \
-            -t realnc/hugor-build:linux-x64 \
+            -t ${IMAGE_NAME} \
             --platform linux/amd64 \
+            --cache-from ${IMAGE_NAME} \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
             --build-arg FROM_ARCH=linux-x64 \
             --build-arg APPIMAGE_ARCH=x86_64 \
             .
           echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
-          docker push realnc/hugor-build:linux-x64
+          docker push ${IMAGE_NAME}
