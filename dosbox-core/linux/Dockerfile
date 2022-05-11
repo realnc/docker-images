@@ -1,11 +1,23 @@
 # syntax=docker/dockerfile:1.3-labs
-FROM amd64/ubuntu:16.04
+ARG FROM_ARCH
+FROM ${FROM_ARCH}/ubuntu:16.04
+
+ARG SHELL_WRAPPER
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+RUN <<END_RUN
+    set -ex
+    echo '#! /bin/sh' > /bin/shell_wrapper
+    echo exec ${SHELL_WRAPPER} '"$@"' >> /bin/shell_wrapper
+    chmod +x /bin/shell_wrapper
+END_RUN
+
+SHELL ["/bin/shell_wrapper", "/bin/bash", "-c"]
+
 # Install deps.
 RUN <<END_RUN
-    set -eux
+    set -ex
     cd /tmp
     apt-get -y update
     apt-get -y dist-upgrade
@@ -43,7 +55,7 @@ END_RUN
 
 # Libretro's CI expects these.
 RUN <<END_RUN
-    set -eux
+    set -ex
     useradd -d /developer -m developer
     chown -R developer:developer /developer
     echo "developer:developer" | chpasswd && adduser developer sudo
@@ -55,4 +67,5 @@ USER root
 WORKDIR /developer
 VOLUME /developer
 
-CMD /bin/bash
+ENTRYPOINT ["/bin/shell_wrapper"]
+CMD ["/bin/bash", "--login"]

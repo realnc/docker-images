@@ -1,4 +1,4 @@
-name: DOSBox-core Linux x64
+name: DOSBox-core Linux x86
 
 on:
   workflow_dispatch:
@@ -22,10 +22,10 @@ jobs:
           cd dosbox-core/linux
           docker build \
             --progress plain \
-            -t realnc/dosbox-core-build:linux-x64 \
+            -t realnc/dosbox-core-build:linux-x86 \
             --platform linux/amd64 \
-            --build-arg FROM_ARCH=amd64 \
-            --build-arg SHELL_WRAPPER=/usr/bin/linux64 \
+            --build-arg FROM_ARCH=i386 \
+            --build-arg SHELL_WRAPPER=/usr/bin/linux32 \
             .
           echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
-          docker push realnc/dosbox-core-build:linux-x64
+          docker push realnc/dosbox-core-build:linux-x86
