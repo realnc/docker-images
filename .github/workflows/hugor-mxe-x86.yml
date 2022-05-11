@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - master
+      - '!circleci/**'
     paths:
       - 'hugor/mxe/Dockerfile'
 
