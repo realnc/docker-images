@@ -46,11 +46,11 @@ RUN <<END_RUN
     apt-get -y clean
     rm -rf /var/lib/apt/lists/*
     python3 -m pip install --upgrade --no-cache-dir "pip<20"
-    python3 -m pip install --no-cache-dir "meson<0.59" "cmake<3.22"
-    wget -nv "https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip"
-    unzip ninja-linux.zip
-    rm ninja-linux.zip
-    mv ninja /usr/local/bin/
+    python3 -m pip install --no-cache-dir \
+        "meson<0.59" \
+        "cmake<3.22" \
+        "ninja" \
+    ;
 END_RUN
 
 # Libretro's CI expects these.
