@@ -182,5 +182,4 @@ END_RUN
 ENV PATH="/opt/mxe/usr/bin:$PATH"
 
 USER root
-ENTRYPOINT ["/bin/bash"]
-CMD ["--login"]
+CMD ["/bin/bash", "--login"]
