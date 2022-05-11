@@ -32,11 +32,13 @@ RUN <<END_RUN
         build-essential \
         g++-9 \
         gcc-9 \
+        gettext \
         git \
         libasound2-dev \
         libglu1-mesa-dev \
         libltdl-dev \
         libtool \
+        libtool-bin \
         mesa-common-dev \
         pkg-config \
         python3-pip \
