@@ -1,0 +1,19 @@
+name: DOSBox-core Linux ARM64 CircleCI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - 'dosbox-core/linux/Dockerfile'
+
+jobs:
+  trigger-circleci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger CircleCI
+        id: 'circleci'
+        uses: CircleCI-Public/trigger-circleci-pipeline-action@v1.0.4
+        env:
+          CCI_TOKEN: ${{ secrets.CCI_TOKEN }}
