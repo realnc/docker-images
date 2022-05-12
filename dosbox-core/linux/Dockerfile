@@ -15,7 +15,7 @@ END_RUN
 
 SHELL ["/bin/shell_wrapper", "/bin/bash", "-c"]
 
-# Install deps.
+# Install deps with apt-get.
 RUN <<END_RUN
     set -ex
     cd /tmp
@@ -47,10 +47,28 @@ RUN <<END_RUN
     apt-get -y autoremove
     apt-get -y clean
     rm -rf /var/lib/apt/lists/*
-    python3 -m pip install --upgrade --no-cache-dir "pip<20"
+END_RUN
+
+# We need a more recent cmake version. This PPA has 3.12 and also provides ARM builds.
+RUN <<END_RUN
+    set -ex
+    add-apt-repository -y --update ppa:janisozaur/cmake-update
+    apt-get -y update
+    apt-get -y --no-install-recommends install \
+        cmake \
+    ;
+    apt-get -y autoremove
+    apt-get -y clean
+    rm -rf /var/lib/apt/lists/*
+END_RUN
+
+# More recent versions of some deps are needed. Install those with pip.
+RUN <<END_RUN
+    set -ex
+    python3 -m pip install --upgrade --no-cache-dir \
+        "pip<20" \
+    ;
     python3 -m pip install --no-cache-dir \
-        "meson<0.59" \
-        "cmake<3.22" \
         "ninja" \
     ;
 END_RUN
