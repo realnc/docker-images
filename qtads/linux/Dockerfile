@@ -2,12 +2,13 @@
 ARG FROM_ARCH
 FROM ${FROM_ARCH}/ubuntu:16.04
 
+ARG APPIMAGE_ARCH
 ARG FSYNTH_VERSION=2.2.7
-ARG LINUXDEPLOY_ARCH
 ARG OPENSSL_VERSION=1.1.1o
 ARG SHELL_WRAPPER
 
 ENV APPIMAGE_EXTRACT_AND_RUN=1
+ENV CMAKE_GENERATOR=Ninja
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN <<END_RUN
@@ -76,17 +77,40 @@ RUN <<END_RUN
     ;
     apt-get -y autoremove
     apt-get -y clean
+    rm -rf /usr/share/doc/*
     rm -rf /var/lib/apt/lists/*
     rm -rf /tmp/*
 END_RUN
 
-# Pip has more recent versions of some stuff.
+# We need a more recent cmake version. This PPA has 3.12 and also provides ARM builds.
 RUN <<END_RUN
     set -ex
-    python3 -m pip install --upgrade --no-cache-dir "pip<20"
-    python3 -m pip install --no-cache-dir \
+    add-apt-repository -y --update ppa:janisozaur/cmake-update
+    apt-get -y update
+    apt-get -y --no-install-recommends install \
         cmake \
     ;
+    apt-get -y autoremove
+    apt-get -y clean
+    rm -rf /usr/share/doc/*
+    rm -rf /usr/share/man/*
+    rm -rf /var/lib/apt/lists/*
+    rm -rf /tmp/*
+END_RUN
+
+# More recent versions of some deps are needed. Install those with pip.
+RUN <<END_RUN
+    set -ex
+    export CMAKE_GENERATOR="Unix Makefiles"
+    python3 -m pip install --upgrade --no-cache-dir \
+        "pip<20" \
+    ;
+    python3 -m pip install --no-cache-dir \
+        "ninja" \
+    ;
+    rm -rf /usr/local/share/doc/*
+    rm -rf /usr/local/share/man/*
+    rm -rf /tmp/*
 END_RUN
 
 # OpenSSL. Ubuntu 16.04's version is too old.
@@ -96,9 +120,11 @@ RUN <<END_RUN
     cd openssl-${OPENSSL_VERSION}
     ./config --prefix=/usr/local
     make -j`nproc`
-    make install
+    make install -j`nproc`
     cd ..
     rm -rf *
+    rm -rf /usr/local/share/doc/*
+    rm -rf /usr/local/share/man/*
     ldconfig
 END_RUN
 
@@ -212,18 +238,25 @@ RUN <<END_RUN
     make install
     cd ../..
     rm -rf *
+    rm -rf /usr/local/share/doc/*
+    rm -rf /usr/local/share/man/*
     ldconfig
 END_RUN
 
-# linuxdeploy
+# appimagetool, linuxdeployqt
 RUN <<END_RUN
     set -ex
-    cd /usr/local/bin
-    wget -nv "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-${LINUXDEPLOY_ARCH}.AppImage"
-    wget -nv "https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/continuous/linuxdeploy-plugin-appimage-${LINUXDEPLOY_ARCH}.AppImage"
-    wget -nv "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-${LINUXDEPLOY_ARCH}.AppImage"
-    chmod +x linuxdeploy-*
-    ln -s linuxdeploy-${LINUXDEPLOY_ARCH}.AppImage linuxdeploy
+    wget -nv "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-${APPIMAGE_ARCH}.AppImage" -O /usr/local/bin/appimagetool
+    chmod +x /usr/local/bin/appimagetool
+    wget -nv "https://github.com/probonopd/linuxdeployqt/archive/refs/tags/continuous.tar.gz" -O- | tar xz
+    cd linuxdeployqt-continuous
+    qmake
+    make -j`nproc`
+    make install
+    cd ..
+    rm -rf *
+    rm -rf /usr/local/share/doc/*
+    rm -rf /usr/local/share/man/*
 END_RUN
 
 USER root
