@@ -21,6 +21,7 @@ jobs:
       - name: Build
         run: |
           cd hugor/linux
+          echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
           docker build \
             --progress plain \
             -t ${IMAGE_NAME} \
@@ -28,7 +29,5 @@ jobs:
             --cache-from ${IMAGE_NAME} \
             --build-arg BUILDKIT_INLINE_CACHE=1 \
             --build-arg FROM_ARCH=linux-x64 \
-            --build-arg APPIMAGE_ARCH=x86_64 \
             .
-          echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
           docker push ${IMAGE_NAME}

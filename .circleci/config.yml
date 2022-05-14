@@ -43,13 +43,13 @@ workflows:
       - hugor-linux:
           name: 'Hugor Linux arm64v8'
           docker_image: 'realnc/hugor-build:linux-arm64v8'
-          from_arch: 'arm64v8'
+          from_arch: 'linux-arm64v8'
           context:
             - global-org
       - hugor-linux:
           name: 'Hugor Linux arm32v7'
           docker_image: 'realnc/hugor-build:linux-arm32v7'
-          from_arch: 'arm32v7'
+          from_arch: 'linux-arm32v7'
           context:
             - global-org
 
@@ -138,7 +138,6 @@ jobs:
                 --build-arg FROM_ARCH=<< parameters.from_arch >> \
                 .
             docker push << parameters.docker_image >>
-            docker logout
 
   dosbox-core-linux:
     parameters:

@@ -3,12 +3,13 @@ ARG FROM_ARCH
 FROM realnc/qtads-build:${FROM_ARCH}
 
 ARG ADLMIDI_VERSION=1.5.0.1-1
-ARG APPIMAGE_ARCH
 ARG NASM_VERSION=2.15.05
 ARG OPENMPT_VERSION=0.4.30
 # Don't use patchelf >=0.14 as it requires std::optional.
 ARG PATCHELF_VERSION=0.13.1
 ARG VLC_VERSION=3.0.17.3
+
+ENV CMAKE_GENERATOR=Ninja
 
 WORKDIR /tmp
 
@@ -24,6 +25,7 @@ RUN <<END_RUN
     ;
     apt-get -y autoremove
     apt-get -y clean
+    rm -rf /usr/share/doc/*
     rm -rf /var/lib/apt/lists/*
     rm -rf /tmp/*
 END_RUN
@@ -39,6 +41,8 @@ RUN <<END_RUN
     make install
     cd ..
     rm -rf *
+    rm -rf /usr/local/share/doc/*
+    rm -rf /usr/local/share/man/*
 END_RUN
 
 # LibVLC
@@ -62,7 +66,7 @@ RUN <<END_RUN
     make -j`nproc` .postproc
     cd ../..
     # kludge around build error on 32-bit ubuntu
-    sed -i'' 's/ -lplacebo / -lplacebo -lm /' contrib/*-linux-gnu/lib/pkgconfig/libplacebo.pc
+    find contrib -name 'libplacebo.pc' -exec sed -i'' 's/ -lplacebo / -lplacebo -lm /' '{}' \;
     ./configure \
         --prefix=/usr/local \
         --disable-debug \
@@ -160,6 +164,8 @@ RUN <<END_RUN
     make install-strip
     cd ..
     rm -rf *
+    rm -rf /usr/local/share/doc/*
+    rm -rf /usr/local/share/man/*
     ldconfig
 END_RUN
 
@@ -195,6 +201,8 @@ RUN <<END_RUN
     make install-strip
     cd ..
     rm -rf *
+    rm -rf /usr/local/share/doc/*
+    rm -rf /usr/local/share/man/*
     ldconfig
 END_RUN
 
@@ -206,6 +214,7 @@ RUN <<END_RUN
     mkdir libADLMIDI-${ADLMIDI_VERSION}/build
     cd libADLMIDI-${ADLMIDI_VERSION}/build
     cmake \
+        -DCMAKE_GENERATOR=Ninja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/usr/local \
         -DlibADLMIDI_SHARED=ON \
@@ -227,9 +236,11 @@ RUN <<END_RUN
         -DWITH_XMI2MID=OFF \
         .. \
     ;
-    cmake --build . --target install -j `nproc` -v
+    ninja -v install
     cd ../..
     rm -rf *
+    rm -rf /usr/local/share/doc/*
+    rm -rf /usr/local/share/man/*
     ldconfig
 END_RUN
 
@@ -244,19 +255,6 @@ RUN <<END_RUN
     make install-strip
     cd ..
     rm -rf *
-END_RUN
-
-# appimagetool, linuxdeployqt
-RUN <<END_RUN
-    set -ex
-
-    wget -nv "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-${APPIMAGE_ARCH}.AppImage" -O /usr/local/bin/appimagetool
-    chmod +x /usr/local/bin/appimagetool
-    wget -nv "https://github.com/probonopd/linuxdeployqt/archive/refs/tags/continuous.tar.gz" -O- | tar xz
-    cd linuxdeployqt-continuous
-    qmake
-    make -j`nproc`
-    make install
-    cd ..
-    rm -rf *
+    rm -rf /usr/local/share/doc/*
+    rm -rf /usr/local/share/man/*
 END_RUN
