@@ -5,8 +5,6 @@ FROM realnc/qtads-build:${FROM_ARCH}
 ARG ADLMIDI_VERSION=1.5.0.1-1
 ARG NASM_VERSION=2.15.05
 ARG OPENMPT_VERSION=0.4.30
-# Don't use patchelf >=0.14 as it requires std::optional.
-ARG PATCHELF_VERSION=0.13.1
 ARG VLC_VERSION=3.0.17.3
 
 ENV CMAKE_GENERATOR=Ninja
@@ -242,19 +240,4 @@ RUN <<END_RUN
     rm -rf /usr/local/share/doc/*
     rm -rf /usr/local/share/man/*
     ldconfig
-END_RUN
-
-# patchelf
-RUN <<END_RUN
-    set -ex
-
-    wget -nv "https://github.com/NixOS/patchelf/releases/download/${PATCHELF_VERSION}/patchelf-${PATCHELF_VERSION}.tar.bz2" -O- | tar xj
-    cd patchelf-*
-    ./configure --prefix=/usr/local
-    make -j`nproc`
-    make install-strip
-    cd ..
-    rm -rf *
-    rm -rf /usr/local/share/doc/*
-    rm -rf /usr/local/share/man/*
 END_RUN
