@@ -5,6 +5,8 @@ FROM ${FROM_ARCH}/ubuntu:16.04
 ARG APPIMAGE_ARCH
 ARG FSYNTH_VERSION=2.2.7
 ARG OPENSSL_VERSION=1.1.1o
+# Don't use patchelf >=0.14 as it requires std::optional.
+ARG PATCHELF_VERSION=0.13.1
 ARG SHELL_WRAPPER
 
 ENV APPIMAGE_EXTRACT_AND_RUN=1
@@ -241,6 +243,23 @@ RUN <<END_RUN
     rm -rf /usr/local/share/doc/*
     rm -rf /usr/local/share/man/*
     ldconfig
+END_RUN
+
+# patchelf
+RUN <<END_RUN
+    set -ex
+    wget -nv \
+        "https://github.com/NixOS/patchelf/releases/download/${PATCHELF_VERSION}/patchelf-${PATCHELF_VERSION}.tar.bz2" \
+        -O- | tar xj \
+    ;
+    cd patchelf-*
+    ./configure --prefix=/usr/local
+    make -j`nproc`
+    make install-strip
+    cd ..
+    rm -rf *
+    rm -rf /usr/local/share/doc/*
+    rm -rf /usr/local/share/man/*
 END_RUN
 
 # appimagetool, linuxdeployqt
