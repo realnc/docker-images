@@ -19,81 +19,141 @@ workflows:
     when:
       equal: ['qtads-linux', << pipeline.parameters.GHA_Action >>]
     jobs:
-      - qtads-linux-arm64v8
+      - qtads-linux:
+          name: 'QTads Linux arm64v8'
+          docker_image: 'realnc/qtads-build:linux-arm64v8'
+          from_arch: 'arm64v8'
+          appimage_arch: 'aarch64'
+          shell_wrapper: '/usr/bin/linux64'
+          context:
+            - global-org
+      - qtads-linux:
+          name: 'QTads Linux arm32v7'
+          docker_image: 'realnc/qtads-build:linux-arm32v7'
+          from_arch: 'arm32v7'
+          appimage_arch: 'armhf'
+          shell_wrapper: '/usr/bin/linux32'
+          context:
+            - global-org
 
   build-hugor-linux:
     when:
       equal: ['hugor-linux', << pipeline.parameters.GHA_Action >>]
     jobs:
-      - hugor-linux-arm64v8
+      - hugor-linux:
+          name: 'Hugor Linux arm64v8'
+          docker_image: 'realnc/hugor-build:linux-arm64v8'
+          from_arch: 'arm64v8'
+          context:
+            - global-org
+      - hugor-linux:
+          name: 'Hugor Linux arm32v7'
+          docker_image: 'realnc/hugor-build:linux-arm32v7'
+          from_arch: 'arm32v7'
+          context:
+            - global-org
 
   build-dosbox-core-linux:
     when:
       equal: ['dosbox-core-linux', << pipeline.parameters.GHA_Action >>]
     jobs:
-      - dosbox-core-linux-arm64v8
-      - dosbox-core-linux-arm32v7
+      - dosbox-core-linux:
+          name: 'DOSBox-core Linux arm64v8'
+          docker_image: 'realnc/dosbox-core-build:linux-arm64v8'
+          from_arch: 'arm64v8'
+          shell_wrapper: '/usr/bin/linux64'
+          context:
+            - global-org
+      - dosbox-core-linux:
+          name: 'DOSBox-core Linux arm32v7'
+          docker_image: 'realnc/dosbox-core-build:linux-arm32v7'
+          from_arch: 'arm32v7'
+          shell_wrapper: '/usr/bin/linux32'
+          context:
+            - global-org
 
 jobs:
-  qtads-linux-arm64v8:
+  qtads-linux:
+    parameters:
+      docker_image:
+        type: string
+      from_arch:
+        type: string
+      appimage_arch:
+        type: string
+      shell_wrapper:
+        type: string
+
     resource_class: arm.medium
     machine:
       image: ubuntu-2004:current
     environment:
       DOCKER_BUILDKIT: 1
-      IMAGE_NAME: realnc/qtads-build:linux-arm64v8
 
     steps:
       - checkout
       - run:
           name: "Build"
           command: |
-            cd qtads/linux-arm
+            cd qtads/linux
+            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USER" --password-stdin
             docker build \
                 --progress plain \
-                -t ${IMAGE_NAME} \
+                -t << parameters.docker_image >> \
                 --platform linux/arm64 \
-                --cache-from ${IMAGE_NAME} \
+                --cache-from << parameters.docker_image >> \
                 --build-arg BUILDKIT_INLINE_CACHE=1 \
-                --build-arg FROM_ARCH=arm64v8 \
-                --build-arg APPIMAGE_ARCH=aarch64 \
-                --build-arg SHELL_WRAPPER=/usr/bin/linux64 \
+                --build-arg FROM_ARCH=<< parameters.from_arch >> \
+                --build-arg APPIMAGE_ARCH=<< parameters.appimage_arch >> \
+                --build-arg SHELL_WRAPPER=<< parameters.shell_wrapper >> \
                 .
-            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USER" --password-stdin
-            docker push ${IMAGE_NAME}
+            docker push << parameters.docker_image >>
 
-  hugor-linux-arm64v8:
+  hugor-linux:
+    parameters:
+      docker_image:
+        type: string
+      from_arch:
+        type: string
+
     resource_class: arm.medium
     machine:
       image: ubuntu-2004:current
     environment:
       DOCKER_BUILDKIT: 1
-      IMAGE_NAME: realnc/hugor-build:linux-arm64v8
 
     steps:
       - checkout
       - run:
           name: "Build"
           command: |
-            cd hugor/linux-arm
+            cd hugor/linux
+            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USER" --password-stdin
             docker build \
                 --progress plain \
-                -t ${IMAGE_NAME} \
+                -t << parameters.docker_image >> \
                 --platform linux/arm64 \
-                --cache-from ${IMAGE_NAME} \
+                --cache-from << parameters.docker_image >> \
                 --build-arg BUILDKIT_INLINE_CACHE=1 \
-                --build-arg FROM_ARCH=linux-arm64 \
+                --build-arg FROM_ARCH=<< parameters.from_arch >> \
                 .
-            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USER" --password-stdin
-            docker push ${IMAGE_NAME}
+            docker push << parameters.docker_image >>
+            docker logout
 
-  dosbox-core-linux-arm64v8:
+  dosbox-core-linux:
+    parameters:
+      docker_image:
+        type: string
+      from_arch:
+        type: string
+      shell_wrapper:
+        type: string
+
     resource_class: arm.medium
     machine:
       image: ubuntu-2004:current
     environment:
       DOCKER_BUILDKIT: 1
-      IMAGE_NAME: realnc/dosbox-core-build:linux-arm64v8
 
     steps:
       - checkout
@@ -101,40 +161,14 @@ jobs:
           name: "Build"
           command: |
             cd dosbox-core/linux
+            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USER" --password-stdin
             docker build \
                 --progress plain \
-                -t ${IMAGE_NAME} \
+                -t << parameters.docker_image >> \
                 --platform linux/arm64 \
-                --cache-from ${IMAGE_NAME} \
+                --cache-from << parameters.docker_image >> \
                 --build-arg BUILDKIT_INLINE_CACHE=1 \
-                --build-arg FROM_ARCH=arm64v8 \
-                --build-arg SHELL_WRAPPER=/usr/bin/linux64 \
+                --build-arg FROM_ARCH=<< parameters.from_arch >> \
+                --build-arg SHELL_WRAPPER=<< parameters.shell_wrapper >> \
                 .
-            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USER" --password-stdin
-            docker push ${IMAGE_NAME}
-
-  dosbox-core-linux-arm32v7:
-    resource_class: arm.medium
-    machine:
-      image: ubuntu-2004:current
-    environment:
-      DOCKER_BUILDKIT: 1
-      IMAGE_NAME: realnc/dosbox-core-build:linux-arm32v7
-
-    steps:
-      - checkout
-      - run:
-          name: "Build"
-          command: |
-            cd dosbox-core/linux
-            docker build \
-                --progress plain \
-                -t ${IMAGE_NAME} \
-                --platform linux/arm64 \
-                --cache-from ${IMAGE_NAME} \
-                --build-arg BUILDKIT_INLINE_CACHE=1 \
-                --build-arg FROM_ARCH=arm32v7 \
-                --build-arg SHELL_WRAPPER=/usr/bin/linux32 \
-                .
-            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USER" --password-stdin
-            docker push ${IMAGE_NAME}
+            docker push << parameters.docker_image >>
