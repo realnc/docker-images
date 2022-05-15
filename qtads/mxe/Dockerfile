@@ -55,12 +55,16 @@ RUN <<END_RUN
     ;
     apt-get -y autoremove
     apt-get -y clean
+    rm -rf /usr/share/doc/*
+    rm -rf /usr/share/man/*
     rm -rf /var/lib/apt/lists/*
     rm -rf /tmp/*
 END_RUN
 
 # Install MXE.
 ARG DOCKER_MXE_TARGETS
+ARG FSYNTH_CHECKSUM=460d86d8d687f567dc4780890b72538c7ff6b2082080ef2f9359d41670a309cf
+ARG FSYNTH_VERSION=2.2.7
 ARG LIBSNDFILE_CHECKSUM=a8cfb1c09ea6e90eff4ca87322d4168cdbe5035cb48717b40bf77e751cc02163
 ARG LIBSNDFILE_VERSION=1.0.31
 ARG MXE_COMMIT=c3ac37bc7e09a55219c4671fd856edb1973a9c42
@@ -174,6 +178,12 @@ RUN <<END_RUN
     ;
 
     make clean-junk
+    strip usr/x86_64-pc-linux-gnu/bin/*
+    strip usr/*/qt5/bin/*
+    find -iname "*.exe" -exec rm '{}' \;
+    rm -rf usr/*/share/doc
+    rm -rf usr/*/share/locale
+    rm -rf usr/*/share/man
     rm -rf pkg
     rm -rf /tmp/*
 END_RUN
