@@ -2,19 +2,11 @@
 ARG FROM_ARCH
 FROM realnc/qtads-build:${FROM_ARCH}
 
-ARG ADLMIDI_VERSION=1.5.0.1-1
-ARG NASM_VERSION=2.15.05
-ARG OPENMPT_VERSION=0.4.30
-ARG VLC_VERSION=3.0.17.3
-
-ENV CMAKE_GENERATOR=Ninja
-
 WORKDIR /tmp
 
 # Deps.
 RUN <<END_RUN
     set -ex
-
     apt-get -y update
     apt-get -y dist-upgrade
     apt-get -y --no-install-recommends install \
@@ -29,9 +21,9 @@ RUN <<END_RUN
 END_RUN
 
 # NASM
+ARG NASM_VERSION=2.15.05
 RUN <<END_RUN
     set -eux
-
     wget -nv "https://www.nasm.us/pub/nasm/releasebuilds/${NASM_VERSION}/nasm-${NASM_VERSION}.tar.xz" -O- | tar xJ
     cd nasm-${NASM_VERSION}
     ./configure --prefix=/usr/local
@@ -44,9 +36,9 @@ RUN <<END_RUN
 END_RUN
 
 # LibVLC
+ARG VLC_VERSION=3.0.17.3
 RUN <<END_RUN
     set -ex
-
     wget -nv "http://get.videolan.org/vlc/${VLC_VERSION}/vlc-${VLC_VERSION}.tar.xz" -O- | tar xJ
     mkdir vlc-${VLC_VERSION}/contrib/native
     cd vlc-${VLC_VERSION}/contrib/native
@@ -168,9 +160,9 @@ RUN <<END_RUN
 END_RUN
 
 # libopenmpt
+ARG OPENMPT_VERSION=0.4.30
 RUN <<END_RUN
     set -ex
-
     wget -nv "https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-${OPENMPT_VERSION}+release.autotools.tar.gz" -O- | tar xz
     cd libopenmpt-${OPENMPT_VERSION}+release.autotools
     ./configure \
@@ -205,14 +197,14 @@ RUN <<END_RUN
 END_RUN
 
 # libADLMIDI
+ARG ADLMIDI_VERSION=1.5.0.1-1
 RUN <<END_RUN
     set -ex
-
     wget -nv "https://github.com/Wohlstand/libADLMIDI/archive/refs/tags/v${ADLMIDI_VERSION}.tar.gz" -O- | tar xz
     mkdir libADLMIDI-${ADLMIDI_VERSION}/build
     cd libADLMIDI-${ADLMIDI_VERSION}/build
     cmake \
-        -DCMAKE_GENERATOR=Ninja \
+        -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/usr/local \
         -DlibADLMIDI_SHARED=ON \
@@ -234,7 +226,7 @@ RUN <<END_RUN
         -DWITH_XMI2MID=OFF \
         .. \
     ;
-    ninja -v install
+    ninja -v install/strip
     cd ../..
     rm -rf *
     rm -rf /usr/local/share/doc/*
