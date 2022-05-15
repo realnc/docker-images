@@ -178,8 +178,8 @@ RUN <<END_RUN
     ;
 
     make clean-junk
-    strip usr/x86_64-pc-linux-gnu/bin/*
-    strip usr/*/qt5/bin/*
+    strip usr/x86_64-pc-linux-gnu/bin/* || true
+    strip usr/*/qt5/bin/* || true
     find -iname "*.exe" -exec rm '{}' \;
     rm -rf usr/*/share/doc
     rm -rf usr/*/share/locale
