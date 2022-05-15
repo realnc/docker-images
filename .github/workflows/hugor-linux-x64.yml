@@ -20,8 +20,8 @@ jobs:
 
       - name: Build
         run: |
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
           cd hugor/linux
-          echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
           docker build \
             --progress plain \
             -t ${IMAGE_NAME} \
@@ -31,3 +31,7 @@ jobs:
             --build-arg FROM_ARCH=linux-x64 \
             .
           docker push ${IMAGE_NAME}
+
+      - name: Docker logout
+        if: always()
+        run: docker logout

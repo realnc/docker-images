@@ -20,6 +20,7 @@ jobs:
 
       - name: Build
         run: |
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
           cd qtads/mxe
           docker build \
             --progress plain \
@@ -29,5 +30,8 @@ jobs:
             --build-arg BUILDKIT_INLINE_CACHE=1 \
             --build-arg DOCKER_MXE_TARGETS='x86_64-w64-mingw32.static' \
             .
-          echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
           docker push ${IMAGE_NAME}
+
+      - name: Docker logout
+        if: always()
+        run: docker logout
