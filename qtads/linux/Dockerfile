@@ -2,17 +2,10 @@
 ARG FROM_ARCH
 FROM ${FROM_ARCH}/ubuntu:16.04
 
-ARG APPIMAGE_ARCH
-ARG FSYNTH_VERSION=2.2.7
-ARG OPENSSL_VERSION=1.1.1o
-# Don't use patchelf >=0.14 as it requires std::optional.
-ARG PATCHELF_VERSION=0.13.1
-ARG SHELL_WRAPPER
-
 ENV APPIMAGE_EXTRACT_AND_RUN=1
-ENV CMAKE_GENERATOR=Ninja
 ENV DEBIAN_FRONTEND=noninteractive
 
+ARG SHELL_WRAPPER
 RUN <<END_RUN
     set -ex
     echo '#! /bin/sh' > /bin/shell_wrapper
@@ -47,7 +40,6 @@ RUN <<END_RUN
         libfreetype6-dev \
         libfuse2 \
         libglib2.0-dev \
-        libglu1-mesa-dev \
         libglu1-mesa-dev \
         libharfbuzz-dev \
         libinput-dev \
@@ -103,7 +95,6 @@ END_RUN
 # More recent versions of some deps are needed. Install those with pip.
 RUN <<END_RUN
     set -ex
-    export CMAKE_GENERATOR="Unix Makefiles"
     python3 -m pip install --upgrade --no-cache-dir \
         "pip<20" \
     ;
@@ -116,6 +107,7 @@ RUN <<END_RUN
 END_RUN
 
 # OpenSSL. Ubuntu 16.04's version is too old.
+ARG OPENSSL_VERSION=1.1.1o
 RUN <<END_RUN
     set -ex
     wget -nv "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -O- | tar xz
@@ -199,12 +191,14 @@ RUN <<END_RUN
 END_RUN
 
 # Fluidsynth.
+ARG FSYNTH_VERSION=2.2.7
 RUN <<END_RUN
     set -ex
     wget -nv "https://github.com/FluidSynth/fluidsynth/archive/v${FSYNTH_VERSION}.tar.gz" -O- | tar xz
     mkdir fluidsynth-${FSYNTH_VERSION}/build
     cd fluidsynth-${FSYNTH_VERSION}/build
     cmake \
+        -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_SHARED_LIBS=ON \
         -DCMAKE_INSTALL_PREFIX=/usr/local \
@@ -236,8 +230,7 @@ RUN <<END_RUN
         -Denable-threads=ON \
         .. \
     ;
-    make -j`nproc`
-    make install
+    ninja -v install/strip
     cd ../..
     rm -rf *
     rm -rf /usr/local/share/doc/*
@@ -245,7 +238,8 @@ RUN <<END_RUN
     ldconfig
 END_RUN
 
-# patchelf
+# patchelf is needed by appimagetool. Don't use patchelf >=0.14 as it requires std::optional.
+ARG PATCHELF_VERSION=0.13.1
 RUN <<END_RUN
     set -ex
     wget -nv \
@@ -263,6 +257,7 @@ RUN <<END_RUN
 END_RUN
 
 # appimagetool, linuxdeployqt
+ARG APPIMAGE_ARCH
 RUN <<END_RUN
     set -ex
     wget -nv "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-${APPIMAGE_ARCH}.AppImage" -O /usr/local/bin/appimagetool
