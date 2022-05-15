@@ -1,12 +1,5 @@
 # syntax=docker/dockerfile:1.4
-FROM amd64/ubuntu:20.04
-
-ARG DOCKER_MXE_TARGETS
-ARG FSYNTH_CHECKSUM=460d86d8d687f567dc4780890b72538c7ff6b2082080ef2f9359d41670a309cf
-ARG FSYNTH_VERSION=2.2.7
-ARG LIBSNDFILE_CHECKSUM=a8cfb1c09ea6e90eff4ca87322d4168cdbe5035cb48717b40bf77e751cc02163
-ARG LIBSNDFILE_VERSION=1.0.31
-ARG MXE_COMMIT=9ac466ee81fa6c83e6719d6171b217fb7109275c
+FROM amd64/ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -48,7 +41,8 @@ RUN <<END_RUN
         patch \
         perl \
         pkg-config \
-        python \
+        python-is-python3 \
+        python3 \
         python3-mako \
         python3-pip \
         ruby \
@@ -66,9 +60,14 @@ RUN <<END_RUN
 END_RUN
 
 # Install MXE.
+ARG DOCKER_MXE_TARGETS
+ARG LIBSNDFILE_CHECKSUM=a8cfb1c09ea6e90eff4ca87322d4168cdbe5035cb48717b40bf77e751cc02163
+ARG LIBSNDFILE_VERSION=1.0.31
+ARG MXE_COMMIT=c3ac37bc7e09a55219c4671fd856edb1973a9c42
 RUN <<END_RUN
     set -ex
 
+    git config --global init.defaultBranch master
     git config --global advice.detachedHead false
     cd /opt
     mkdir mxe
