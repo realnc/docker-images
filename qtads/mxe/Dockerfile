@@ -186,6 +186,9 @@ END_RUN
 
 FROM amd64/ubuntu:22.04
 
+COPY --from=build-stage /opt/mxe /opt/mxe/
+COPY --from=build-stage /root/.gitconfig /root/
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN <<END_RUN
@@ -206,9 +209,6 @@ RUN <<END_RUN
     rm -rf /var/lib/apt/lists/*
     rm -rf /tmp/*
 END_RUN
-
-COPY --from=build-stage /opt/mxe /opt/mxe/
-COPY --from=build-stage /root/.gitconfig /root/
 
 ENV PATH="/opt/mxe/usr/bin:$PATH"
 
