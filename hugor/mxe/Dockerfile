@@ -6,6 +6,22 @@ ARG MXE_TARGET
 
 WORKDIR /tmp
 
+RUN <<END_RUN
+    set -ex
+    apt-get -y update
+    apt-get -y --no-install-recommends install \
+        ninja-build \
+        p7zip-full \
+        zip \
+    ;
+    apt-get -y autoremove
+    apt-get -y clean
+    rm -rf /usr/share/doc/*
+    rm -rf /usr/share/man/*
+    rm -rf /var/lib/apt/lists/*
+    rm -rf /tmp/*
+END_RUN
+
 # LibVLC.
 ARG VLC_VERSION=3.0.17.3
 RUN <<END_RUN
@@ -444,6 +460,7 @@ RUN <<END_RUN
     mkdir libADLMIDI-${ADLMIDI_VERSION}/build
     cd libADLMIDI-${ADLMIDI_VERSION}/build
     ${MXE_TARGET}-cmake \
+        -G Ninja \
         -DlibADLMIDI_STATIC=ON \
         -DlibADLMIDI_SHARED=OFF \
         -DEXAMPLE_SDL2_AUDIO=OFF \
@@ -463,7 +480,7 @@ RUN <<END_RUN
         -DWITH_XMI2MID=OFF \
         .. \
     ;
-    ${MXE_TARGET}-cmake --build . --target install -j `nproc` -v
+    ninja -v install/strip
     cd ../..
     rm -rf *
 END_RUN
