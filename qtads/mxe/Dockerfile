@@ -195,6 +195,7 @@ RUN <<END_RUN
     apt-get -y --no-install-recommends install apt-utils
     apt-get -y dist-upgrade
     apt-get -y --no-install-recommends install \
+        ca-certificates \
         make \
         wget \
     ;
