@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.4
-FROM amd64/ubuntu:22.04
+FROM amd64/ubuntu:22.04 AS build-stage
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -53,13 +53,9 @@ RUN <<END_RUN
         xz-utils \
         zip \
     ;
-    apt-get -y autoremove
-    apt-get -y clean
-    rm -rf /usr/share/doc/*
-    rm -rf /usr/share/man/*
-    rm -rf /var/lib/apt/lists/*
-    rm -rf /tmp/*
 END_RUN
+
+RUN git config --global --add safe.directory '*'
 
 # Install MXE.
 ARG DOCKER_MXE_TARGETS
@@ -187,6 +183,31 @@ RUN <<END_RUN
     rm -rf pkg
     rm -rf /tmp/*
 END_RUN
+
+FROM amd64/ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN <<END_RUN
+    set -ex
+
+    apt-get -y update
+    apt-get -y --no-install-recommends install apt-utils
+    apt-get -y dist-upgrade
+    apt-get -y --no-install-recommends install \
+        make \
+        wget \
+    ;
+    apt-get -y autoremove
+    apt-get -y clean
+    rm -rf /usr/share/doc/*
+    rm -rf /usr/share/man/*
+    rm -rf /var/lib/apt/lists/*
+    rm -rf /tmp/*
+END_RUN
+
+COPY --from=build-stage /opt/mxe /opt/mxe/
+COPY --from=build-stage /root/.gitconfig /root/
 
 ENV PATH="/opt/mxe/usr/bin:$PATH"
 
