@@ -135,6 +135,7 @@ RUN <<END_RUN
         ninja-build \
         pkg-config \
         wget \
+        zip \
     ;
 
     apt-get -y autoremove
