@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.4
 ARG FROM_ARCH
-FROM ${FROM_ARCH}/ubuntu:16.04
+FROM ${FROM_ARCH}/ubuntu:18.04
 
 ENV APPIMAGE_EXTRACT_AND_RUN=1
 ENV DEBIAN_FRONTEND=noninteractive
@@ -76,11 +76,16 @@ RUN <<END_RUN
     rm -rf /tmp/*
 END_RUN
 
-# We need a more recent cmake version. This PPA has 3.12 and also provides ARM builds.
+# We need a more recent cmake version.
 RUN <<END_RUN
     set -ex
-    add-apt-repository -y --update ppa:janisozaur/cmake-update
+    wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+    echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ bionic main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null
     apt-get -y update
+    rm /usr/share/keyrings/kitware-archive-keyring.gpg
+    apt-get -y --no-install-recommends install \
+        kitware-archive-keyring \
+    ;
     apt-get -y --no-install-recommends install \
         cmake \
     ;
@@ -96,7 +101,7 @@ END_RUN
 RUN <<END_RUN
     set -ex
     python3 -m pip install --upgrade --no-cache-dir \
-        "pip<20" \
+        "pip<22" \
     ;
     python3 -m pip install --no-cache-dir \
         "ninja" \
@@ -106,8 +111,8 @@ RUN <<END_RUN
     rm -rf /tmp/*
 END_RUN
 
-# OpenSSL. Ubuntu 16.04's version is too old.
-ARG OPENSSL_VERSION=1.1.1o
+# Latest OpenSSL.
+ARG OPENSSL_VERSION=1.1.1t
 RUN <<END_RUN
     set -ex
     wget -nv "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -O- | tar xz
@@ -191,7 +196,7 @@ RUN <<END_RUN
 END_RUN
 
 # Fluidsynth.
-ARG FSYNTH_VERSION=2.2.7
+ARG FSYNTH_VERSION=2.3.2
 RUN <<END_RUN
     set -ex
     wget -nv "https://github.com/FluidSynth/fluidsynth/archive/v${FSYNTH_VERSION}.tar.gz" -O- | tar xz
@@ -238,8 +243,8 @@ RUN <<END_RUN
     ldconfig
 END_RUN
 
-# patchelf is needed by appimagetool. Don't use patchelf >=0.14 as it requires std::optional.
-ARG PATCHELF_VERSION=0.13.1
+# patchelf is needed by appimagetool. Don't use patchelf >=0.18 since it doesn't build with GCC 7.
+ARG PATCHELF_VERSION=0.17.2
 RUN <<END_RUN
     set -ex
     wget -nv \
