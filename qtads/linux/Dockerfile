@@ -52,6 +52,7 @@ RUN <<END_RUN
         libpulse-dev \
         libsdl2-dev \
         libsndfile1-dev \
+        libssl-dev \
         libtool \
         libx11-dev \
         libx11-xcb-dev \
@@ -109,22 +110,6 @@ RUN <<END_RUN
     rm -rf /usr/local/share/doc/*
     rm -rf /usr/local/share/man/*
     rm -rf /tmp/*
-END_RUN
-
-# Latest OpenSSL.
-ARG OPENSSL_VERSION=1.1.1t
-RUN <<END_RUN
-    set -ex
-    wget -nv "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -O- | tar xz
-    cd openssl-${OPENSSL_VERSION}
-    ./config --prefix=/usr/local
-    make -j`nproc`
-    make install -j`nproc`
-    cd ..
-    rm -rf *
-    rm -rf /usr/local/share/doc/*
-    rm -rf /usr/local/share/man/*
-    ldconfig
 END_RUN
 
 # qtbase.
