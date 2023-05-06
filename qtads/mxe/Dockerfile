@@ -61,8 +61,8 @@ RUN git config --global --add safe.directory '*'
 ARG DOCKER_MXE_TARGETS
 ARG FSYNTH_CHECKSUM=cd610810f30566e28fb98c36501f00446a06fa6bae3dc562c8cd3868fe1c0fc7
 ARG FSYNTH_VERSION=2.3.2
-ARG LIBSNDFILE_CHECKSUM=a8cfb1c09ea6e90eff4ca87322d4168cdbe5035cb48717b40bf77e751cc02163
-ARG LIBSNDFILE_VERSION=1.0.31
+ARG LIBSNDFILE_CHECKSUM=0e30e7072f83dc84863e2e55f299175c7e04a5902ae79cfb99d4249ee8f6d60a
+ARG LIBSNDFILE_VERSION=1.2.0
 ARG MXE_COMMIT=f3206a381994bbbed40929889437069bde8ec05a
 RUN <<END_RUN
     set -ex
@@ -89,7 +89,7 @@ RUN <<END_RUN
         "" \
         "override libsndfile_VERSION := ${LIBSNDFILE_VERSION}" \
         "override libsndfile_CHECKSUM := ${LIBSNDFILE_CHECKSUM}" \
-        "override libsndfile_GH_CONF := libsndfile/libsndfile/releases,,,,,.tar.bz2" \
+        "override libsndfile_GH_CONF := libsndfile/libsndfile/releases,,,,,.tar.xz" \
         "override libsndfile_DEPS := cc" \
         "" \
         "override mpg123_DEPS := cc" \
@@ -136,6 +136,7 @@ RUN <<END_RUN
         "    -no-sql-tds" \
     ; do echo "$settings_line" >> settings.mk; done
 
+    rm src/libsndfile-1-fixes.patch
     sed -i'' 's/--enable-external-libs /--disable-external-libs --disable-full-suite /g' src/libsndfile.mk
 
     sed -i'' '/--with-default-audio=/d' src/mpg123.mk
