@@ -21,7 +21,7 @@ RUN <<END_RUN
 END_RUN
 
 # NASM
-ARG NASM_VERSION=2.15.05
+ARG NASM_VERSION=2.16.01
 RUN <<END_RUN
     set -eux
     wget -nv "https://www.nasm.us/pub/nasm/releasebuilds/${NASM_VERSION}/nasm-${NASM_VERSION}.tar.xz" -O- | tar xJ
@@ -36,7 +36,7 @@ RUN <<END_RUN
 END_RUN
 
 # LibVLC
-ARG VLC_VERSION=3.0.17.3
+ARG VLC_VERSION=3.0.18
 RUN <<END_RUN
     set -ex
     wget -nv "http://get.videolan.org/vlc/${VLC_VERSION}/vlc-${VLC_VERSION}.tar.xz" -O- | tar xJ
@@ -160,7 +160,7 @@ RUN <<END_RUN
 END_RUN
 
 # libopenmpt
-ARG OPENMPT_VERSION=0.4.30
+ARG OPENMPT_VERSION=0.4.36
 RUN <<END_RUN
     set -ex
     wget -nv "https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-${OPENMPT_VERSION}+release.autotools.tar.gz" -O- | tar xz
@@ -197,7 +197,7 @@ RUN <<END_RUN
 END_RUN
 
 # libADLMIDI
-ARG ADLMIDI_VERSION=1.5.0.1-1
+ARG ADLMIDI_VERSION=1.5.1
 RUN <<END_RUN
     set -ex
     wget -nv "https://github.com/Wohlstand/libADLMIDI/archive/refs/tags/v${ADLMIDI_VERSION}.tar.gz" -O- | tar xz
