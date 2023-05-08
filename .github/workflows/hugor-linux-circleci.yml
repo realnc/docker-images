@@ -14,6 +14,6 @@ jobs:
     steps:
       - name: Trigger CircleCI
         id: 'hugor-linux'
-        uses: CircleCI-Public/trigger-circleci-pipeline-action@v1.0.4
+        uses: CircleCI-Public/trigger-circleci-pipeline-action@v1.0.5
         env:
           CCI_TOKEN: ${{ secrets.CCI_TOKEN }}
