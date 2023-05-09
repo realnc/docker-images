@@ -59,103 +59,21 @@ RUN git config --global --add safe.directory '*'
 
 # Install MXE.
 ARG DOCKER_MXE_TARGETS
-ARG FSYNTH_CHECKSUM=cd610810f30566e28fb98c36501f00446a06fa6bae3dc562c8cd3868fe1c0fc7
-ARG FSYNTH_VERSION=2.3.2
-ARG LIBSNDFILE_CHECKSUM=0e30e7072f83dc84863e2e55f299175c7e04a5902ae79cfb99d4249ee8f6d60a
-ARG LIBSNDFILE_VERSION=1.2.0
-ARG MXE_COMMIT=f3206a381994bbbed40929889437069bde8ec05a
 RUN <<END_RUN
     set -ex
 
-    git config --global init.defaultBranch master
-    git config --global advice.detachedHead false
     cd /opt
-    mkdir mxe
+    git clone --depth=1 -b qtads 'https://github.com/realnc/mxe.git' mxe
     cd mxe
-    git init
-    git remote add origin "https://github.com/mxe/mxe.git"
-    git fetch --depth=1 origin ${MXE_COMMIT}
-    git checkout ${MXE_COMMIT}
     make check-requirements
 
     for settings_line in \
-        "" \
         'JOBS := $(shell nproc)' \
         "MXE_TMP := /tmp/mxe" \
         "MXE_TARGETS := ${DOCKER_MXE_TARGETS}" \
         "MXE_USE_CCACHE=" \
-        "" \
-        "gcc_CONFIGURE_OPTS := --enable-languages=c,c++" \
-        "" \
-        "override libsndfile_VERSION := ${LIBSNDFILE_VERSION}" \
-        "override libsndfile_CHECKSUM := ${LIBSNDFILE_CHECKSUM}" \
-        "override libsndfile_GH_CONF := libsndfile/libsndfile/releases,,,,,.tar.xz" \
-        "override libsndfile_DEPS := cc" \
-        "" \
-        "override mpg123_DEPS := cc" \
-        "" \
-        "override fluidsynth_VERSION := ${FSYNTH_VERSION}" \
-        "override fluidsynth_CHECKSUM := ${FSYNTH_CHECKSUM}" \
-        "override fluidsynth_DEPS := cc glib mman-win32" \
-        "override fluidsynth_CONFIGURE_OPTS := \\" \
-        "    -Denable-dbus=OFF \\" \
-        "    -Denable-jack=OFF \\" \
-        "    -Denable-libsndfile=OFF \\" \
-        "    -Denable-portaudio=OFF \\" \
-        "    -Denable-readline=OFF \\" \
-        "    -Denable-aufile=OFF \\" \
-        "    -Denable-ipv6=OFF \\" \
-        "    -Denable-ladspa=OFF \\" \
-        "    -Denable-libinstpatch=OFF \\" \
-        "    -Denable-midishare=OFF \\" \
-        "    -Denable-opensles=OFF \\" \
-        "    -Denable-network=OFF \\" \
-        "    -Denable-dsound=OFF \\" \
-        "    -Denable-oss=OFF \\" \
-        "    -Denable-wasapi=OFF \\" \
-        "    -Denable-waveout=OFF \\" \
-        "    -Denable-winmidi=OFF \\" \
-        "    -Denable-sdl2=OFF \\" \
-        "    -Denable-pulseaudio=OFF \\" \
-        "    -Denable-threads=ON" \
-        "" \
-        'override qtbase_DEPS := cc fontconfig freetype harfbuzz jpeg libpng openssl pcre2 zlib zstd $(BUILD)~zstd' \
-        "override qtbase_CONFIGURE_OPTS := \\" \
-        "    -gc-binaries \\" \
-        "    -c++std c++17 \\" \
-        "    -no-dbus \\" \
-        "    -no-opengl \\" \
-        "    -no-sql-db2 \\" \
-        "    -no-sql-ibase \\" \
-        "    -no-sql-mysql \\" \
-        "    -no-sql-oci \\" \
-        "    -no-sql-odbc \\" \
-        "    -no-sql-psql \\" \
-        "    -no-sql-sqlite2 \\" \
-        "    -no-sql-sqlite \\" \
-        "    -no-sql-tds" \
+        "MXE_PLUGIN_DIRS += plugins/gcc12" \
     ; do echo "$settings_line" >> settings.mk; done
-
-    rm src/libsndfile-1-fixes.patch
-    sed -i'' 's/--enable-external-libs /--disable-external-libs --disable-full-suite /g' src/libsndfile.mk
-
-    sed -i'' '/--with-default-audio=/d' src/mpg123.mk
-    sed -i'' '/--with-audio=/d' src/mpg123.mk
-    sed -i'' 's/$(MXE_CONFIGURE_OPTS) /$(MXE_CONFIGURE_OPTS) --with-default-audio=dummy --with-audio=dummy /g' src/mpg123.mk
-
-    rm src/fluidsynth-*.patch
-    sed -i'' '/--libs fluidsynth/ s/$/ -luuid/' src/fluidsynth.mk
-
-    sed -i'' '/PSQL_LIBS=/d' src/qtbase.mk
-    sed -i'' '/SYBASE_LIBS=/d' src/qtbase.mk
-    sed -i'' '/-opengl dynamic /d' src/qtbase.mk
-    sed -i'' '/-plugin-sql-mysql /d' src/qtbase.mk
-    sed -i'' '/-mysql_config /d' src/qtbase.mk
-    sed -i'' '/-plugin-sql-/d' src/qtbase.mk
-    sed -i'' '/-system-sqlite /d' src/qtbase.mk
-    sed -i'' '/-dbus-linked /d' src/qtbase.mk
-    sed -i'' 's:./configure :./configure -c++std c++17 :g' src/qtbase.mk
-    sed -i'' 's/std=c++0x/std=c++17/g' src/qtbase.mk
 END_RUN
 
 # Build MXE packages
