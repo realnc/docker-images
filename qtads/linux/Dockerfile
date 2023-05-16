@@ -250,7 +250,7 @@ END_RUN
 ARG APPIMAGE_ARCH
 RUN <<END_RUN
     set -ex
-    wget -nv "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-${APPIMAGE_ARCH}.AppImage" -O /usr/local/bin/appimagetool
+    wget -nv https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "appimagetool-.*-${APPIMAGE_ARCH}.AppImage" | head -n 1 | cut -d '"' -f 2) -O /usr/local/bin/appimagetool
     chmod +x /usr/local/bin/appimagetool
     wget -nv "https://github.com/probonopd/linuxdeployqt/archive/refs/tags/continuous.tar.gz" -O- | tar xz
     cd linuxdeployqt-continuous
