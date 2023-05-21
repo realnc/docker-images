@@ -133,6 +133,7 @@ RUN <<END_RUN
         -system-freetype \
         -qt-harfbuzz \
         -qt-pcre \
+        -no-icu \
         -ssl \
         -openssl-runtime \
         -no-cups \
